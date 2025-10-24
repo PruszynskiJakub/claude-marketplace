@@ -1,0 +1,13 @@
+{
+"name": "claude-marketplace",
+"owner": {
+"name": "Jakub Pruszyński"
+},
+"plugins": [
+{
+  "name": "claude-insights",
+  "source": "./claude-insights-plugin",
+  "description": "Claude Insights plugin"
+}
+]
+}
