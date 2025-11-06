@@ -271,7 +271,7 @@ def main():
         # Add Authorization header if API key is set
         api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
         if api_key:
-            headers['Authorization'] = f'Bearer {api_key}'
+            headers['x-api-key'] = api_key
 
         data = json.dumps(payload).encode('utf-8')
         req = urllib.request.Request(url, data=data, headers=headers, method='POST')

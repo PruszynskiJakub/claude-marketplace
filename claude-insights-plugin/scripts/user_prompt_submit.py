@@ -30,7 +30,7 @@ def send_user_message(session_id: str, user_message: str, api_url: str = "http:/
         headers = {"Content-Type": "application/json"}
         api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
         if api_key:
-            headers['Authorization'] = f'Bearer {api_key}'
+            headers['x-api-key'] = api_key
 
         response = requests.post(
             endpoint,

@@ -210,7 +210,7 @@ def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: 
         headers = {"Content-Type": "application/json"}
         api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
         if api_key:
-            headers['Authorization'] = f'Bearer {api_key}'
+            headers['x-api-key'] = api_key
 
         response = requests.put(
             endpoint,
