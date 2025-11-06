@@ -8,7 +8,7 @@
 
 """
 Session End Transcript Hook
-Parses Claude Code transcript into human-readable format and sends to backend.
+Parses Claude Code transcript into structured format and sends to backend.
 """
 
 import json
@@ -18,10 +18,10 @@ from typing import List, Dict, Any
 from pathlib import Path
 
 
-def parse_transcript(transcript_path: str) -> str:
+def parse_transcript(transcript_path: str) -> List[Dict[str, Any]]:
     """
-    Parse NDJSON transcript into clean, readable format.
-    Returns formatted string with conversation flow.
+    Parse NDJSON transcript into structured format.
+    Returns list of transcript entries (user and assistant messages).
     """
     try:
         conversations = []
@@ -54,55 +54,67 @@ def parse_transcript(transcript_path: str) -> str:
                         content = message.get('content', '')
                         timestamp = entry.get('timestamp', '')
 
-                        conversations.append({
-                            'type': 'user',
-                            'content': content,
-                            'timestamp': timestamp
-                        })
+                        # Extract only text content from user messages
+                        if isinstance(content, str):
+                            content_str = content
+                        elif isinstance(content, list):
+                            # Extract only text items from array
+                            text_items = []
+                            for item in content:
+                                if isinstance(item, dict) and item.get('type') == 'text':
+                                    text_items.append(item.get('text', ''))
+                            content_str = '\n'.join(text_items) if text_items else None
+                        else:
+                            content_str = None
+
+                        # Only include if there's text content
+                        if content_str:
+                            conversations.append({
+                                'role': 'user',
+                                'text': content_str,
+                                'timestamp': timestamp,
+                                'type': 'text'
+                            })
 
                 # Parse assistant messages
                 elif entry_type == 'assistant':
                     message = entry.get('message', {})
                     if message.get('role') == 'assistant':
                         content_blocks = message.get('content', [])
+                        timestamp = entry.get('timestamp', '')
 
-                        # Extract different content types
-                        text_parts = []
-                        tool_calls = []
-
+                        # Create separate entries for each content block
                         for block in content_blocks:
                             block_type = block.get('type')
 
                             if block_type == 'text':
-                                text_parts.append(block.get('text', ''))
+                                text_content = block.get('text', '')
+                                if text_content:
+                                    conversations.append({
+                                        'role': 'assistant',
+                                        'type': 'text',
+                                        'text': text_content,
+                                        'timestamp': timestamp
+                                    })
 
-                            elif block_type == 'tool_use':
-                                tool_calls.append({
-                                    'name': block.get('name'),
-                                    'input': block.get('input', {})
-                                })
+                            elif block_type == 'thinking':
+                                thinking_content = block.get('thinking', '')
+                                if thinking_content:
+                                    conversations.append({
+                                        'role': 'assistant',
+                                        'type': 'thinking',
+                                        'text': thinking_content,
+                                        'timestamp': timestamp
+                                    })
 
-                        # Get token usage
-                        usage = message.get('usage', {})
-                        tokens = usage.get('output_tokens', 0)
-
-                        timestamp = entry.get('timestamp', '')
-
-                        conversations.append({
-                            'type': 'assistant',
-                            'text': '\n'.join(text_parts) if text_parts else None,
-                            'tool_calls': tool_calls if tool_calls else None,
-                            'tokens': tokens,
-                            'timestamp': timestamp
-                        })
-
-        # Format conversations into readable text
-        return format_conversations(conversations)
+        return conversations
 
     except FileNotFoundError:
-        return f"Error: Transcript file not found at {transcript_path}"
+        print(f"Error: Transcript file not found at {transcript_path}", file=sys.stderr)
+        return []
     except Exception as e:
-        return f"Error parsing transcript: {str(e)}"
+        print(f"Error parsing transcript: {str(e)}", file=sys.stderr)
+        return []
 
 
 def format_conversations(conversations: List[Dict[str, Any]]) -> str:
@@ -183,8 +195,8 @@ def format_conversations(conversations: List[Dict[str, Any]]) -> str:
     return '\n'.join(formatted_lines)
 
 
-def send_to_backend(session_id: str, transcript: str, api_url: str = "http://localhost:3999") -> bool:
-    """Send formatted transcript to backend API."""
+def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: str = "http://localhost:3999") -> bool:
+    """Send structured transcript to backend API."""
     try:
         endpoint = f"{api_url}/api/sessions/{session_id}/transcript"
         payload = {
@@ -204,7 +216,8 @@ def send_to_backend(session_id: str, transcript: str, api_url: str = "http://loc
     except requests.exceptions.ConnectionError:
         # Backend might not be running - fail silently
         return False
-    except Exception:
+    except Exception as e:
+        print(f"Error sending transcript to backend: {str(e)}", file=sys.stderr)
         return False
 
 
@@ -220,11 +233,11 @@ def main():
         if not session_id or not transcript_path:
             sys.exit(0)
 
-        # Parse transcript
-        formatted_transcript = parse_transcript(transcript_path)
+        # Parse transcript into structured data
+        transcript = parse_transcript(transcript_path)
 
         # Send to backend
-        send_to_backend(session_id, formatted_transcript)
+        send_to_backend(session_id, transcript)
 
         # Always exit successfully to not block session end
         sys.exit(0)
