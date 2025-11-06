@@ -54,10 +54,16 @@ def main():
         }
 
         try:
+            # Prepare headers with Authorization if API key is set
+            headers = {"Content-Type": "application/json"}
+            api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
+            if api_key:
+                headers['Authorization'] = f'Bearer {api_key}'
+
             response = requests.put(
                 api_url,
                 json=payload,
-                headers={"Content-Type": "application/json"},
+                headers=headers,
                 timeout=10
             )
             response.raise_for_status()

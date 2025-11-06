@@ -18,16 +18,24 @@ def send_user_message(session_id: str, user_message: str, api_url: str = "http:/
     Returns True if successful, False otherwise.
     """
     try:
+        import os
+
         endpoint = f"{api_url}/api/sessions/{session_id}/message"
         payload = {
             "sessionId": session_id,
             "userMessage": user_message
         }
 
+        # Prepare headers with Authorization if API key is set
+        headers = {"Content-Type": "application/json"}
+        api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
+        if api_key:
+            headers['Authorization'] = f'Bearer {api_key}'
+
         response = requests.post(
             endpoint,
             json=payload,
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             timeout=5
         )
 

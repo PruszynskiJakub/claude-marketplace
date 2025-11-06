@@ -198,16 +198,24 @@ def format_conversations(conversations: List[Dict[str, Any]]) -> str:
 def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: str = "http://localhost:3999") -> bool:
     """Send structured transcript to backend API."""
     try:
+        import os
+
         endpoint = f"{api_url}/api/sessions/{session_id}/transcript"
         payload = {
             "sessionId": session_id,
             "transcript": transcript
         }
 
+        # Prepare headers with Authorization if API key is set
+        headers = {"Content-Type": "application/json"}
+        api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
+        if api_key:
+            headers['Authorization'] = f'Bearer {api_key}'
+
         response = requests.put(
             endpoint,
             json=payload,
-            headers={"Content-Type": "application/json"},
+            headers=headers,
             timeout=10
         )
 
