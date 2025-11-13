@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/session_start.py"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_start.py"
           }
         ]
       }
@@ -15,7 +15,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/user_prompt_submit.py"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/user_prompt_submit.py"
           }
         ]
       }
@@ -25,11 +25,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/session_end.py"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_end.py"
           },
           {
             "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/session_end_transcript.py"
+            "command": "python3 ${CLAUDE_PLUGIN_ROOT}/scripts/session_end_transcript.py"
           }
         ]
       }

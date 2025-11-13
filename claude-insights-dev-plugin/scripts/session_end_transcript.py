@@ -206,7 +206,7 @@ def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: 
             headers['x-api-key'] = api_key
 
         data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(endpoint, data=data, headers=headers, method='PUT')
+        req = urllib.request.Request(endpoint, data=data, headers=headers, method='POST')
 
         with urllib.request.urlopen(req, timeout=10) as response:
             return response.status in [200, 201]

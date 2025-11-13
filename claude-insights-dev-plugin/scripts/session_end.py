@@ -41,7 +41,7 @@ def main():
             headers['x-api-key'] = api_key
 
         data = json.dumps(payload).encode('utf-8')
-        req = urllib.request.Request(api_url, data=data, headers=headers, method='PUT')
+        req = urllib.request.Request(api_url, data=data, headers=headers, method='POST')
 
         try:
             with urllib.request.urlopen(req, timeout=10) as response:
