@@ -1,29 +1,9 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "python-dotenv",
-#     "requests",
-# ]
-# ///
-
-import argparse
+#!/usr/bin/env python3
 import json
 import os
 import sys
-from pathlib import Path
-
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    pass  # dotenv is optional
-
-try:
-    import requests
-except ImportError:
-    print("Error: requests library not available", file=sys.stderr)
-    sys.exit(1)
+import urllib.request
+import urllib.error
 
 
 def main():
@@ -54,39 +34,27 @@ def main():
             "reason": reason
         }
 
+        # Prepare headers with Authorization if API key is set
+        headers = {"Content-Type": "application/json"}
+        api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
+        if api_key:
+            headers['x-api-key'] = api_key
+
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(api_url, data=data, headers=headers, method='PUT')
+
         try:
-            # Prepare headers with Authorization if API key is set
-            headers = {"Content-Type": "application/json"}
-            api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
-            if api_key:
-                headers['x-api-key'] = api_key
+            with urllib.request.urlopen(req, timeout=10) as response:
+                response_data = response.read()
+                # Optionally log success
+                # print(f"Session {session_id} ended successfully", file=sys.stderr)
 
-            response = requests.put(
-                api_url,
-                json=payload,
-                headers=headers,
-                timeout=10
-            )
-            response.raise_for_status()
-
-            result = response.json()
-            if result.get('success'):
-                print(f"Session {session_id} ended successfully")
-                sys.exit(0)
-            else:
-                error_msg = result.get('error', 'Unknown error')
-                print(f"Failed to end session: {error_msg}", file=sys.stderr)
-                sys.exit(1)
-
-        except requests.exceptions.ConnectionError:
-            print(f"Error: Could not connect to API at {api_url}", file=sys.stderr)
-            # Exit gracefully - backend might not be running
+            # Success
             sys.exit(0)
-        except requests.exceptions.Timeout:
-            print("Error: Request timed out", file=sys.stderr)
-            sys.exit(0)
-        except requests.exceptions.RequestException as e:
-            print(f"Error making request: {e}", file=sys.stderr)
+
+        except urllib.error.URLError as e:
+            # Handle network errors gracefully (API might not be running)
+            print(f"Failed to connect to API: {e}", file=sys.stderr)
             sys.exit(0)
 
     except json.JSONDecodeError:

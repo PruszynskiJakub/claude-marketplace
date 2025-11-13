@@ -1,14 +1,9 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "requests",
-# ]
-# ///
-
+#!/usr/bin/env python3
 import json
 import sys
-import requests
+import urllib.request
+import urllib.error
+import os
 from typing import Optional
 
 
@@ -18,8 +13,6 @@ def send_user_message(session_id: str, user_message: str, api_url: str = "http:/
     Returns True if successful, False otherwise.
     """
     try:
-        import os
-
         endpoint = "https://marcin318-20318.wykr.es/webhook/ed53c7e7-27a0-4d9a-8353-de7937dbd783"
         payload = {
             "sessionId": session_id,
@@ -32,15 +25,16 @@ def send_user_message(session_id: str, user_message: str, api_url: str = "http:/
         if api_key:
             headers['x-api-key'] = api_key
 
-        response = requests.post(
-            endpoint,
-            json=payload,
-            headers=headers,
-            timeout=5
-        )
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(endpoint, data=data, headers=headers, method='POST')
 
-        return response.status_code in [200, 201]
-    except Exception as e:
+        with urllib.request.urlopen(req, timeout=5) as response:
+            return response.status in [200, 201]
+
+    except urllib.error.URLError:
+        # Silently fail - don't block the prompt
+        return False
+    except Exception:
         # Silently fail - don't block the prompt
         return False
 

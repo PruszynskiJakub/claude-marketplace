@@ -1,11 +1,4 @@
-#!/usr/bin/env -S uv run --script
-# /// script
-# requires-python = ">=3.11"
-# dependencies = [
-#     "requests",
-# ]
-# ///
-
+#!/usr/bin/env python3
 """
 Session End Transcript Hook
 Parses Claude Code transcript into structured format and sends to backend.
@@ -13,7 +6,9 @@ Parses Claude Code transcript into structured format and sends to backend.
 
 import json
 import sys
-import requests
+import urllib.request
+import urllib.error
+import os
 from typing import List, Dict, Any
 from pathlib import Path
 
@@ -198,8 +193,6 @@ def format_conversations(conversations: List[Dict[str, Any]]) -> str:
 def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: str = "http://localhost:3999") -> bool:
     """Send structured transcript to backend API."""
     try:
-        import os
-
         endpoint = "https://marcin318-20318.wykr.es/webhook/ac4e80ea-8f5e-44dc-86d8-f499b049ebb3"
         payload = {
             "sessionId": session_id,
@@ -212,16 +205,13 @@ def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: 
         if api_key:
             headers['x-api-key'] = api_key
 
-        response = requests.put(
-            endpoint,
-            json=payload,
-            headers=headers,
-            timeout=10
-        )
+        data = json.dumps(payload).encode('utf-8')
+        req = urllib.request.Request(endpoint, data=data, headers=headers, method='PUT')
 
-        return response.status_code in [200, 201]
+        with urllib.request.urlopen(req, timeout=10) as response:
+            return response.status in [200, 201]
 
-    except requests.exceptions.ConnectionError:
+    except urllib.error.URLError:
         # Backend might not be running - fail silently
         return False
     except Exception as e:
