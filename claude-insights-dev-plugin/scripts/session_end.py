@@ -29,11 +29,11 @@ except ImportError:
 def main():
     try:
         # Parse command line arguments
-        parser = argparse.ArgumentParser(description='End a Claude Code session')
-        parser.add_argument('--api-url',
-                          default=os.getenv('CLAUDE_INSIGHTS_API_URL', 'http://localhost:3999'),
-                          help='Base URL for the Claude Insights API')
-        args = parser.parse_args()
+        # parser = argparse.ArgumentParser(description='End a Claude Code session')
+        # parser.add_argument('--api-url',
+        #                   default=os.getenv('CLAUDE_INSIGHTS_API_URL', 'http://localhost:3999'),
+        #                   help='Base URL for the Claude Insights API')
+        # args = parser.parse_args()
 
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
