@@ -9,9 +9,14 @@
       "source": "./claude-insights-local-plugin",
       "description": "Claude Insights plugin"
     },
-     {
+    {
       "name": "claude-insights-dev",
       "source": "./claude-insights-dev-plugin",
+      "description": "Claude Insights plugin"
+    },
+    {
+      "name": "claude-insights",
+      "source": "./claude-insights-plugin",
       "description": "Claude Insights plugin"
     }
   ]
