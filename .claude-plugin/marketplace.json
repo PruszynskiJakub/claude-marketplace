@@ -1,13 +1,18 @@
 {
-"name": "claude-marketplace",
-"owner": {
-"name": "Jakub Pruszyński"
-},
-"plugins": [
-{
-  "name": "claude-insights",
-  "source": "./claude-insights-plugin",
-  "description": "Claude Insights plugin"
-}
-]
+  "name": "claude-marketplace",
+  "owner": {
+    "name": "Jakub Pruszyński"
+  },
+  "plugins": [
+    {
+      "name": "claude-insights-local",
+      "source": "./claude-insights-local-plugin",
+      "description": "Claude Insights plugin"
+    },
+     {
+      "name": "claude-insights-dev",
+      "source": "./claude-insights-dev-plugin",
+      "description": "Claude Insights plugin"
+    }
+  ]
 }
