@@ -39,8 +39,8 @@ def main():
         input_data = json.loads(sys.stdin.read())
 
         # Extract sessionId
-        session_id = input_data.get('session_id')
-        reason = input_data.get('reason')
+        session_id = input_data.get('session_id','unknown')
+        reason = input_data.get('reason', 'unknown')
         if not session_id:
             print("Error: session_id not found in input", file=sys.stderr)
             sys.exit(1)

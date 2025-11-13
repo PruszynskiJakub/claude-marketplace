@@ -200,7 +200,7 @@ def send_to_backend(session_id: str, transcript: List[Dict[str, Any]], api_url: 
     try:
         import os
 
-        endpoint = "https://marcin318-20318.wykr.es/webhook-test/ac4e80ea-8f5e-44dc-86d8-f499b049ebb3"
+        endpoint = "https://marcin318-20318.wykr.es/webhook/ac4e80ea-8f5e-44dc-86d8-f499b049ebb3"
         payload = {
             "sessionId": session_id,
             "transcript": transcript

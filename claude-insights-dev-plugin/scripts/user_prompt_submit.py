@@ -20,7 +20,7 @@ def send_user_message(session_id: str, user_message: str, api_url: str = "http:/
     try:
         import os
 
-        endpoint = "https://marcin318-20318.wykr.es/webhook-test/a17ecb9e-67c3-4ea7-9710-9d1a97b2d7c1"
+        endpoint = "https://marcin318-20318.wykr.es/webhook/ed53c7e7-27a0-4d9a-8353-de7937dbd783"
         payload = {
             "sessionId": session_id,
             "userMessage": user_message

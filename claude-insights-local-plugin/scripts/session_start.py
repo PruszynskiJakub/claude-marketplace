@@ -265,7 +265,7 @@ def main():
         }
 
         # Make POST request to localhost:3000/api/sessions
-        url = 'https://marcin318-20318.wykr.es/webhook/b9740374-7204-4757-8f16-58f576652047'
+        url = 'http://localhost:3999/api/sessions'
         headers = {
             'Content-Type': 'application/json'
         }
