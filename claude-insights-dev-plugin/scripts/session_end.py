@@ -40,17 +40,18 @@ def main():
 
         # Extract sessionId
         session_id = input_data.get('session_id')
+        reason = input_data.get('reason')
         if not session_id:
             print("Error: session_id not found in input", file=sys.stderr)
             sys.exit(1)
 
         # Make PUT request to end the session
-        api_url = "https://marcin318-20318.wykr.es/webhook-test/a17ecb9e-67c3-4ea7-9710-9d1a97b2d7c1"
+        api_url = "https://marcin318-20318.wykr.es/webhook/a17ecb9e-67c3-4ea7-9710-9d1a97b2d7c1"
 
         # Prepare payload with trigger information
         payload = {
             "sessionId": session_id,
-            "trigger": "hook"
+            "reason": reason
         }
 
         try:
