@@ -67,10 +67,12 @@ def announce_notification():
             notification_message = "Your agent needs your input"
         
         # Call the TTS script with the notification message
+        # Don't capture output to allow audio playback to work properly
         subprocess.run([
             "uv", "run", tts_script, notification_message
-        ], 
-        capture_output=True,  # Suppress output
+        ],
+        stdout=subprocess.DEVNULL,  # Suppress text output but allow audio
+        stderr=subprocess.DEVNULL,
         timeout=10  # 10-second timeout
         )
         
@@ -91,30 +93,7 @@ def main():
         
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
-        
-        # Ensure log directory exists
-        import os
-        log_dir = os.path.join(os.getcwd(), 'logs')
-        os.makedirs(log_dir, exist_ok=True)
-        log_file = os.path.join(log_dir, 'notification.json')
-        
-        # Read existing log data or initialize empty list
-        if os.path.exists(log_file):
-            with open(log_file, 'r') as f:
-                try:
-                    log_data = json.load(f)
-                except (json.JSONDecodeError, ValueError):
-                    log_data = []
-        else:
-            log_data = []
-        
-        # Append new data
-        log_data.append(input_data)
-        
-        # Write back to file with formatting
-        with open(log_file, 'w') as f:
-            json.dump(log_data, f, indent=2)
-        
+
         # Announce notification via TTS only if --notify flag is set
         # Skip TTS for the generic "Claude is waiting for your input" message
         if args.notify and input_data.get('message') != 'Claude is waiting for your input':
