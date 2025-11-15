@@ -18,6 +18,11 @@
       "name": "claude-insights",
       "source": "./claude-insights-plugin",
       "description": "Claude Insights plugin"
+    },
+    {
+      "name": "TTS",
+      "source": "./text-to-speech-plugin",
+      "description": "Eleven labs notification on stop and notification hook"
     }
   ]
 }
