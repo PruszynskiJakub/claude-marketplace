@@ -5,7 +5,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/notification.py --chat--notify"
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/notification.py --notify"
           }
         ]
       }
@@ -16,7 +16,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/stop.py --chat --notify"
+            "command": "uv run ${CLAUDE_PLUGIN_ROOT}/scripts/stop.py --notify"
           }
         ]
       }
