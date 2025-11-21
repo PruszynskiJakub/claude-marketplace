@@ -12,18 +12,13 @@ import requests
 import os
 
 
-def send_subagent_stop(session_id: str, subagent_data: dict) -> bool:
+def send_subagent_stop(input_data: dict) -> bool:
     """
     Send subagent stop data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/subagent-stop"
-        payload = {
-            "sessionId": session_id,
-            "agentId": subagent_data.get("agent_id"),
-            "agentTranscriptPath": subagent_data.get("agent_transcript_path"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -33,7 +28,7 @@ def send_subagent_stop(session_id: str, subagent_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -49,18 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and subagent data
-        session_id = input_data.get('session_id')
-        agent_id = input_data.get('agent_id')
-        agent_transcript_path = input_data.get('agent_transcript_path', '')
-
-        if session_id and agent_id:
-            subagent_data = {
-                "agent_id": agent_id,
-                "agent_transcript_path": agent_transcript_path
-            }
-            # Send the data to the backend
-            send_subagent_stop(session_id, subagent_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_subagent_stop(input_data)
 
         # Always exit successfully to not block the subagent stop
         sys.exit(0)

@@ -12,17 +12,13 @@ import requests
 import os
 
 
-def send_stop(session_id: str, stop_data: dict) -> bool:
+def send_stop(input_data: dict) -> bool:
     """
     Send stop data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/stop"
-        payload = {
-            "sessionId": session_id,
-            "reason": stop_data.get("reason"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -32,7 +28,7 @@ def send_stop(session_id: str, stop_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -48,16 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and stop reason
-        session_id = input_data.get('session_id')
-        reason = input_data.get('reason', '')
-
-        if session_id:
-            stop_data = {
-                "reason": reason
-            }
-            # Send the data to the backend
-            send_stop(session_id, stop_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_stop(input_data)
 
         # Always exit successfully to not block the stop
         sys.exit(0)

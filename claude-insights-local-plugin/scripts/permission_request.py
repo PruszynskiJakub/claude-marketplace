@@ -12,18 +12,13 @@ import requests
 import os
 
 
-def send_permission_request(session_id: str, permission_data: dict) -> bool:
+def send_permission_request(input_data: dict) -> bool:
     """
     Send permission request data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/permission-request"
-        payload = {
-            "sessionId": session_id,
-            "permissionType": permission_data.get("permission_type"),
-            "details": permission_data.get("details"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -33,7 +28,7 @@ def send_permission_request(session_id: str, permission_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -49,18 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and permission data
-        session_id = input_data.get('session_id')
-        permission_type = input_data.get('permission_type')
-        details = input_data.get('details', {})
-
-        if session_id and permission_type:
-            permission_data = {
-                "permission_type": permission_type,
-                "details": details
-            }
-            # Send the data to the backend
-            send_permission_request(session_id, permission_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_permission_request(input_data)
 
         # Always exit successfully to not block the permission request
         sys.exit(0)

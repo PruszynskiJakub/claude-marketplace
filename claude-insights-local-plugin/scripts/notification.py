@@ -12,19 +12,13 @@ import requests
 import os
 
 
-def send_notification(session_id: str, notification_data: dict) -> bool:
+def send_notification(input_data: dict) -> bool:
     """
     Send notification data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/notification"
-        payload = {
-            "sessionId": session_id,
-            "notificationType": notification_data.get("notification_type"),
-            "message": notification_data.get("message"),
-            "details": notification_data.get("details"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -34,7 +28,7 @@ def send_notification(session_id: str, notification_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -50,20 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and notification data
-        session_id = input_data.get('session_id')
-        notification_type = input_data.get('notification_type')
-        message = input_data.get('message', '')
-        details = input_data.get('details', {})
-
-        if session_id and notification_type:
-            notification_data = {
-                "notification_type": notification_type,
-                "message": message,
-                "details": details
-            }
-            # Send the data to the backend
-            send_notification(session_id, notification_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_notification(input_data)
 
         # Always exit successfully to not block the notification
         sys.exit(0)

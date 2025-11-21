@@ -12,19 +12,13 @@ import requests
 import os
 
 
-def send_subagent_start(session_id: str, subagent_data: dict) -> bool:
+def send_subagent_start(input_data: dict) -> bool:
     """
     Send subagent start data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/subagent-start"
-        payload = {
-            "sessionId": session_id,
-            "agentId": subagent_data.get("agent_id"),
-            "agentType": subagent_data.get("agent_type"),
-            "prompt": subagent_data.get("prompt"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -34,7 +28,7 @@ def send_subagent_start(session_id: str, subagent_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -50,20 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and subagent data
-        session_id = input_data.get('session_id')
-        agent_id = input_data.get('agent_id')
-        agent_type = input_data.get('agent_type')
-        prompt = input_data.get('prompt', '')
-
-        if session_id and agent_id:
-            subagent_data = {
-                "agent_id": agent_id,
-                "agent_type": agent_type,
-                "prompt": prompt
-            }
-            # Send the data to the backend
-            send_subagent_start(session_id, subagent_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_subagent_start(input_data)
 
         # Always exit successfully to not block the subagent start
         sys.exit(0)

@@ -12,18 +12,13 @@ import requests
 import os
 
 
-def send_pre_compact(session_id: str, compact_data: dict) -> bool:
+def send_pre_compact(input_data: dict) -> bool:
     """
     Send pre-compact data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/pre-compact"
-        payload = {
-            "sessionId": session_id,
-            "messageCount": compact_data.get("message_count"),
-            "tokenCount": compact_data.get("token_count"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -33,7 +28,7 @@ def send_pre_compact(session_id: str, compact_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -49,18 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and compact data
-        session_id = input_data.get('session_id')
-        message_count = input_data.get('message_count', 0)
-        token_count = input_data.get('token_count', 0)
-
-        if session_id:
-            compact_data = {
-                "message_count": message_count,
-                "token_count": token_count
-            }
-            # Send the data to the backend
-            send_pre_compact(session_id, compact_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_pre_compact(input_data)
 
         # Always exit successfully to not block the compact
         sys.exit(0)

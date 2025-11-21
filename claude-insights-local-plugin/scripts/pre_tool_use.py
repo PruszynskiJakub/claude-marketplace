@@ -12,18 +12,13 @@ import requests
 import os
 
 
-def send_pre_tool_use(session_id: str, tool_data: dict) -> bool:
+def send_pre_tool_use(input_data: dict) -> bool:
     """
     Send pre-tool-use data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/pre-tool-use"
-        payload = {
-            "sessionId": session_id,
-            "toolName": tool_data.get("tool_name"),
-            "toolInput": tool_data.get("tool_input"),
-        }
 
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
@@ -33,7 +28,7 @@ def send_pre_tool_use(session_id: str, tool_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=payload,
+            json=input_data,
             headers=headers,
             timeout=5
         )
@@ -49,18 +44,9 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and tool data
-        session_id = input_data.get('session_id')
-        tool_name = input_data.get('tool_name')
-        tool_input = input_data.get('tool_input')
-
-        if session_id and tool_name:
-            tool_data = {
-                "tool_name": tool_name,
-                "tool_input": tool_input
-            }
-            # Send the data to the backend
-            send_pre_tool_use(session_id, tool_data)
+        # Send the complete input data to the backend
+        if input_data.get('session_id'):
+            send_pre_tool_use(input_data)
 
         # Always exit successfully to not block the tool use
         sys.exit(0)
