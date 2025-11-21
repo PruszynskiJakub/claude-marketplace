@@ -9,21 +9,20 @@
 import json
 import sys
 import requests
-from typing import Optional
+import os
 
 
-def send_user_message(session_id: str, user_message: str) -> bool:
+def send_pre_compact(session_id: str, compact_data: dict) -> bool:
     """
-    Send user message to the backend API.
+    Send pre-compact data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
-        import os
-
-        endpoint = f"http://localhost:3001/api/hooks/user-prompt-submit"
+        endpoint = "http://localhost:3001/api/hooks/pre-compact"
         payload = {
             "sessionId": session_id,
-            "message": user_message
+            "messageCount": compact_data.get("message_count"),
+            "tokenCount": compact_data.get("token_count"),
         }
 
         # Prepare headers with Authorization if API key is set
@@ -41,7 +40,7 @@ def send_user_message(session_id: str, user_message: str) -> bool:
 
         return response.status_code in [200, 201]
     except Exception as e:
-        # Silently fail - don't block the prompt
+        # Silently fail - don't block the compact
         return False
 
 
@@ -50,15 +49,20 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and prompt
+        # Extract session_id and compact data
         session_id = input_data.get('session_id')
-        prompt = input_data.get('prompt', '')
+        message_count = input_data.get('message_count', 0)
+        token_count = input_data.get('token_count', 0)
 
-        if session_id and prompt:
-            # Send the message to the backend
-            send_user_message(session_id, prompt)
+        if session_id:
+            compact_data = {
+                "message_count": message_count,
+                "token_count": token_count
+            }
+            # Send the data to the backend
+            send_pre_compact(session_id, compact_data)
 
-        # Always exit successfully to not block the prompt
+        # Always exit successfully to not block the compact
         sys.exit(0)
 
     except json.JSONDecodeError:

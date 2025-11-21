@@ -9,21 +9,21 @@
 import json
 import sys
 import requests
-from typing import Optional
+import os
 
 
-def send_user_message(session_id: str, user_message: str) -> bool:
+def send_notification(session_id: str, notification_data: dict) -> bool:
     """
-    Send user message to the backend API.
+    Send notification data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
-        import os
-
-        endpoint = f"http://localhost:3001/api/hooks/user-prompt-submit"
+        endpoint = "http://localhost:3001/api/hooks/notification"
         payload = {
             "sessionId": session_id,
-            "message": user_message
+            "notificationType": notification_data.get("notification_type"),
+            "message": notification_data.get("message"),
+            "details": notification_data.get("details"),
         }
 
         # Prepare headers with Authorization if API key is set
@@ -41,7 +41,7 @@ def send_user_message(session_id: str, user_message: str) -> bool:
 
         return response.status_code in [200, 201]
     except Exception as e:
-        # Silently fail - don't block the prompt
+        # Silently fail - don't block the notification
         return False
 
 
@@ -50,15 +50,22 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and prompt
+        # Extract session_id and notification data
         session_id = input_data.get('session_id')
-        prompt = input_data.get('prompt', '')
+        notification_type = input_data.get('notification_type')
+        message = input_data.get('message', '')
+        details = input_data.get('details', {})
 
-        if session_id and prompt:
-            # Send the message to the backend
-            send_user_message(session_id, prompt)
+        if session_id and notification_type:
+            notification_data = {
+                "notification_type": notification_type,
+                "message": message,
+                "details": details
+            }
+            # Send the data to the backend
+            send_notification(session_id, notification_data)
 
-        # Always exit successfully to not block the prompt
+        # Always exit successfully to not block the notification
         sys.exit(0)
 
     except json.JSONDecodeError:

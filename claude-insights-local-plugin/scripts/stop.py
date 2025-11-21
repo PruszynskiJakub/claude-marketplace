@@ -9,21 +9,19 @@
 import json
 import sys
 import requests
-from typing import Optional
+import os
 
 
-def send_user_message(session_id: str, user_message: str) -> bool:
+def send_stop(session_id: str, stop_data: dict) -> bool:
     """
-    Send user message to the backend API.
+    Send stop data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
-        import os
-
-        endpoint = f"http://localhost:3001/api/hooks/user-prompt-submit"
+        endpoint = "http://localhost:3001/api/hooks/stop"
         payload = {
             "sessionId": session_id,
-            "message": user_message
+            "reason": stop_data.get("reason"),
         }
 
         # Prepare headers with Authorization if API key is set
@@ -41,7 +39,7 @@ def send_user_message(session_id: str, user_message: str) -> bool:
 
         return response.status_code in [200, 201]
     except Exception as e:
-        # Silently fail - don't block the prompt
+        # Silently fail - don't block the stop
         return False
 
 
@@ -50,15 +48,18 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and prompt
+        # Extract session_id and stop reason
         session_id = input_data.get('session_id')
-        prompt = input_data.get('prompt', '')
+        reason = input_data.get('reason', '')
 
-        if session_id and prompt:
-            # Send the message to the backend
-            send_user_message(session_id, prompt)
+        if session_id:
+            stop_data = {
+                "reason": reason
+            }
+            # Send the data to the backend
+            send_stop(session_id, stop_data)
 
-        # Always exit successfully to not block the prompt
+        # Always exit successfully to not block the stop
         sys.exit(0)
 
     except json.JSONDecodeError:

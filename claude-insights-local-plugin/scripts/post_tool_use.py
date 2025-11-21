@@ -9,21 +9,21 @@
 import json
 import sys
 import requests
-from typing import Optional
+import os
 
 
-def send_user_message(session_id: str, user_message: str) -> bool:
+def send_post_tool_use(session_id: str, tool_data: dict) -> bool:
     """
-    Send user message to the backend API.
+    Send post-tool-use data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
-        import os
-
-        endpoint = f"http://localhost:3001/api/hooks/user-prompt-submit"
+        endpoint = "http://localhost:3001/api/hooks/post-tool-use"
         payload = {
             "sessionId": session_id,
-            "message": user_message
+            "toolName": tool_data.get("tool_name"),
+            "toolInput": tool_data.get("tool_input"),
+            "toolResult": tool_data.get("tool_result"),
         }
 
         # Prepare headers with Authorization if API key is set
@@ -41,7 +41,7 @@ def send_user_message(session_id: str, user_message: str) -> bool:
 
         return response.status_code in [200, 201]
     except Exception as e:
-        # Silently fail - don't block the prompt
+        # Silently fail - don't block the tool use
         return False
 
 
@@ -50,15 +50,22 @@ def main():
         # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
-        # Extract session_id and prompt
+        # Extract session_id and tool data
         session_id = input_data.get('session_id')
-        prompt = input_data.get('prompt', '')
+        tool_name = input_data.get('tool_name')
+        tool_input = input_data.get('tool_input')
+        tool_result = input_data.get('tool_result')
 
-        if session_id and prompt:
-            # Send the message to the backend
-            send_user_message(session_id, prompt)
+        if session_id and tool_name:
+            tool_data = {
+                "tool_name": tool_name,
+                "tool_input": tool_input,
+                "tool_result": tool_result
+            }
+            # Send the data to the backend
+            send_post_tool_use(session_id, tool_data)
 
-        # Always exit successfully to not block the prompt
+        # Always exit successfully to not block the tool use
         sys.exit(0)
 
     except json.JSONDecodeError:
