@@ -277,7 +277,7 @@ def main():
         }
 
         # Make POST request to localhost:3000/api/sessions
-        url = 'http://localhost:3999/api/hooks/session-start'
+        url = 'http://localhost:3001/api/hooks/session-start'
         headers = {
             'Content-Type': 'application/json'
         }

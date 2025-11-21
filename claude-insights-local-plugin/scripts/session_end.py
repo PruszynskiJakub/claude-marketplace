@@ -48,7 +48,7 @@ def main():
                 print(f"Warning: Could not read transcript file: {e}", file=sys.stderr)
 
         # Make PUT request to end the session
-        api_url = "http://localhost:3000/api/hooks/session-end"
+        api_url = "http://localhost:3001/api/hooks/session-end"
 
         # Prepare payload with trigger information
         payload = {
