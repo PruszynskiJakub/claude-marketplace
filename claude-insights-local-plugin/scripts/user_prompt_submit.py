@@ -12,7 +12,7 @@ import requests
 from typing import Optional
 
 
-def send_user_message(session_id: str, user_message: str, api_url: str = "http://localhost:3999") -> bool:
+def send_user_message(session_id: str, user_message: str) -> bool:
     """
     Send user message to the backend API.
     Returns True if successful, False otherwise.
@@ -20,10 +20,10 @@ def send_user_message(session_id: str, user_message: str, api_url: str = "http:/
     try:
         import os
 
-        endpoint = f"{api_url}/api/sessions/{session_id}/message"
+        endpoint = f"http://localhost:3001/api/hooks/user-prompt-submit"
         payload = {
             "sessionId": session_id,
-            "userMessage": user_message
+            "message": user_message
         }
 
         # Prepare headers with Authorization if API key is set
