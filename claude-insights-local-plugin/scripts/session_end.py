@@ -28,14 +28,6 @@ except ImportError:
 
 def main():
     try:
-        # Parse command line arguments
-        parser = argparse.ArgumentParser(description='End a Claude Code session')
-        parser.add_argument('--api-url',
-                          default=os.getenv('CLAUDE_INSIGHTS_API_URL', 'http://localhost:3999'),
-                          help='Base URL for the Claude Insights API')
-        args = parser.parse_args()
-
-        # Read JSON input from stdin
         input_data = json.loads(sys.stdin.read())
 
         # Extract sessionId
@@ -45,12 +37,13 @@ def main():
             sys.exit(1)
 
         # Make PUT request to end the session
-        api_url = f"{args.api_url}/api/sessions/{session_id}/end"
+        api_url = "http://localhost:3000/api/hooks/session-end"
 
         # Prepare payload with trigger information
         payload = {
             "sessionId": session_id,
-            "trigger": "hook"
+            "transcript": "",
+            "reason": input_data.get('reason', 'unknown'),
         }
 
         try:
