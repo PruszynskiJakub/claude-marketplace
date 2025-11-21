@@ -36,13 +36,24 @@ def main():
             print("Error: session_id not found in input", file=sys.stderr)
             sys.exit(1)
 
+        # Read transcript file content
+        transcript_content = ""
+        transcript_path = input_data.get('transcript_path') or input_data.get('transcript_file')
+
+        if transcript_path and os.path.exists(transcript_path):
+            try:
+                with open(transcript_path, 'r', encoding='utf-8') as f:
+                    transcript_content = f.read()
+            except Exception as e:
+                print(f"Warning: Could not read transcript file: {e}", file=sys.stderr)
+
         # Make PUT request to end the session
         api_url = "http://localhost:3000/api/hooks/session-end"
 
         # Prepare payload with trigger information
         payload = {
             "sessionId": session_id,
-            "transcript": "",
+            "transcript": transcript_content,
             "reason": input_data.get('reason', 'unknown'),
         }
 
