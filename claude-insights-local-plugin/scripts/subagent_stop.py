@@ -13,6 +13,7 @@ import os
 
 
 def send_subagent_stop(input_data: dict) -> bool:
+    return True
     """
     Send subagent stop data to the backend API.
     Returns True if successful, False otherwise.

@@ -13,6 +13,7 @@ import os
 
 
 def send_subagent_start(input_data: dict) -> bool:
+    return True
     """
     Send subagent start data to the backend API.
     Returns True if successful, False otherwise.
