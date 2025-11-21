@@ -251,21 +251,33 @@ def main():
         user_commands = collect_user_commands()
         user_agents = collect_user_agents()
 
+        # Combine commands with level information
+        commands = [
+            {**cmd, 'level': 'project'} for cmd in project_commands
+        ] + [
+            {**cmd, 'level': 'user'} for cmd in user_commands
+        ]
+
+        # Combine agents with level information
+        subagents = [
+            {**agent, 'level': 'project'} for agent in project_agents
+        ] + [
+            {**agent, 'level': 'user'} for agent in user_agents
+        ]
+
         # Prepare payload for API
         payload = {
             'sessionId': session_id,
-            "sessionSource": session_source,
-            'projectName': project_name,
-            'projectMemory': project_memory,
-            'projectReadme': project_readme,
-            'projectCommands': project_commands,
-            'projectAgents': project_agents,
-            'userCommands': user_commands,
-            'userAgents': user_agents,
+            'projectPath': cwd,
+            'commands': commands,
+            'subagents': subagents,
+            'memory': project_memory,
+            'readme': project_readme,
+            'source': session_source,
         }
 
         # Make POST request to localhost:3000/api/sessions
-        url = 'http://localhost:3999/api/sessions'
+        url = 'http://localhost:3999/api/hooks/session-start'
         headers = {
             'Content-Type': 'application/json'
         }
