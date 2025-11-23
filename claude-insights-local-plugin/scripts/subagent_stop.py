@@ -21,6 +21,11 @@ def send_subagent_stop(input_data: dict) -> bool:
     try:
         endpoint = "http://localhost:3001/api/hooks/subagent-stop"
 
+        payload = {
+            "sessionId": input_data.get('session_id'),
+            "data": input_data
+        }
+
         # Prepare headers with Authorization if API key is set
         headers = {"Content-Type": "application/json"}
         api_key = os.environ.get('CLAUDE_INSIGHTS_API_KEY', '')
@@ -29,7 +34,7 @@ def send_subagent_stop(input_data: dict) -> bool:
 
         response = requests.post(
             endpoint,
-            json=input_data,
+            json=payload,
             headers=headers,
             timeout=5
         )
