@@ -12,14 +12,27 @@ import requests
 import os
 
 
+def read_transcript(transcript_path: str) -> str:
+    """Read raw transcript file content."""
+    try:
+        with open(transcript_path, 'r') as f:
+            return f.read()
+    except Exception:
+        return ""
+
+
 def send_subagent_stop(input_data: dict) -> bool:
-    return True
     """
     Send subagent stop data to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
         endpoint = "http://localhost:3001/api/hooks/subagent-stop"
+
+        # Read agent transcript and append to input_data
+        agent_transcript_path = input_data.get('agent_transcript_path')
+        if agent_transcript_path:
+            input_data['agent_transcript'] = read_transcript(agent_transcript_path)
 
         payload = {
             "sessionId": input_data.get('session_id'),
