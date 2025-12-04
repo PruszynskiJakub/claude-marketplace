@@ -190,6 +190,27 @@ def collect_user_agents():
     return agents
 
 
+def get_git_remote_origin(cwd):
+    """Get the git remote origin URL for the project."""
+    if not cwd:
+        return ''
+
+    try:
+        import subprocess
+        result = subprocess.run(
+            ['git', 'remote', 'get-url', 'origin'],
+            cwd=cwd,
+            capture_output=True,
+            text=True,
+            timeout=5
+        )
+        if result.returncode == 0:
+            return result.stdout.strip()
+        return ''
+    except Exception:
+        return ''
+
+
 def main():
     try:
         # Read JSON input from stdin
@@ -265,6 +286,9 @@ def main():
             {**agent, 'level': 'user'} for agent in user_agents
         ]
 
+        # Get git remote origin URL
+        git_repository = get_git_remote_origin(cwd)
+
         # Prepare payload for API
         payload = {
             'sessionId': session_id,
@@ -274,6 +298,7 @@ def main():
             'memory': project_memory,
             'readme': project_readme,
             'source': session_source,
+            'gitRepository': git_repository,
         }
 
         # Make POST request to localhost:3000/api/sessions
