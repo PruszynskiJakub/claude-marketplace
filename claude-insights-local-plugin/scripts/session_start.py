@@ -223,6 +223,30 @@ def get_git_remote_origin(cwd):
         return ''
 
 
+def collect_mcp_servers(cwd):
+    """Collect MCP server names from .mcp.json file at project root."""
+    if not cwd:
+        return []
+
+    mcp_json_path = Path(cwd) / '.mcp.json'
+    if not mcp_json_path.exists():
+        return []
+
+    try:
+        with open(mcp_json_path, 'r', encoding='utf-8') as f:
+            mcp_config = json.load(f)
+
+        # Extract server names from mcpServers object
+        mcp_servers = mcp_config.get('mcpServers', {})
+        return list(mcp_servers.keys())
+    except json.JSONDecodeError as e:
+        print(f"Error parsing .mcp.json: {e}", file=sys.stderr)
+        return []
+    except Exception as e:
+        print(f"Error reading .mcp.json: {e}", file=sys.stderr)
+        return []
+
+
 def main():
     try:
         # Read JSON input from stdin
@@ -301,6 +325,9 @@ def main():
         # Get git remote origin URL
         git_repository = get_git_remote_origin(cwd)
 
+        # Collect MCP server names
+        mcp_servers = collect_mcp_servers(cwd)
+
         # Prepare payload for API
         payload = {
             'sessionId': session_id,
@@ -312,6 +339,7 @@ def main():
             'source': session_source,
             'gitRepository': git_repository,
             'transcript': read_transcript(input_data),
+            'mcpServers': mcp_servers,
         }
 
         # Make POST request to localhost:3000/api/sessions
