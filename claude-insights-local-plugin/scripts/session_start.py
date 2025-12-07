@@ -190,6 +190,18 @@ def collect_user_agents():
     return agents
 
 
+def read_transcript(input_data: dict) -> str:
+    """Read transcript file content."""
+    transcript_path = input_data.get('transcript_path') or input_data.get('transcript_file')
+    if transcript_path and os.path.exists(transcript_path):
+        try:
+            with open(transcript_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception:
+            pass
+    return ""
+
+
 def get_git_remote_origin(cwd):
     """Get the git remote origin URL for the project."""
     if not cwd:
@@ -299,6 +311,7 @@ def main():
             'readme': project_readme,
             'source': session_source,
             'gitRepository': git_repository,
+            'transcript': read_transcript(input_data),
         }
 
         # Make POST request to localhost:3000/api/sessions

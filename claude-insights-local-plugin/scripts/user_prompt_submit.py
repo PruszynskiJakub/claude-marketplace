@@ -8,22 +8,33 @@
 
 import json
 import sys
+import os
 import requests
-from typing import Optional
 
 
-def send_user_message(session_id: str, user_message: str) -> bool:
+def read_transcript(input_data: dict) -> str:
+    """Read transcript file content."""
+    transcript_path = input_data.get('transcript_path') or input_data.get('transcript_file')
+    if transcript_path and os.path.exists(transcript_path):
+        try:
+            with open(transcript_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception:
+            pass
+    return ""
+
+
+def send_user_message(session_id: str, user_message: str, transcript: str) -> bool:
     """
     Send user message to the backend API.
     Returns True if successful, False otherwise.
     """
     try:
-        import os
-
         endpoint = f"http://localhost:3001/api/hooks/user-prompt-submit"
         payload = {
             "sessionId": session_id,
-            "message": user_message
+            "message": user_message,
+            "transcript": transcript
         }
 
         # Prepare headers with Authorization if API key is set
@@ -56,7 +67,7 @@ def main():
 
         if session_id and prompt:
             # Send the message to the backend
-            send_user_message(session_id, prompt)
+            send_user_message(session_id, prompt, read_transcript(input_data))
 
         # Always exit successfully to not block the prompt
         sys.exit(0)

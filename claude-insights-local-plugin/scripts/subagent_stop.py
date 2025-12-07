@@ -12,13 +12,25 @@ import requests
 import os
 
 
-def read_transcript(transcript_path: str) -> str:
+def read_transcript_file(transcript_path: str) -> str:
     """Read raw transcript file content."""
     try:
         with open(transcript_path, 'r') as f:
             return f.read()
     except Exception:
         return ""
+
+
+def read_transcript(input_data: dict) -> str:
+    """Read transcript file content."""
+    transcript_path = input_data.get('transcript_path') or input_data.get('transcript_file')
+    if transcript_path and os.path.exists(transcript_path):
+        try:
+            with open(transcript_path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception:
+            pass
+    return ""
 
 
 def send_subagent_stop(input_data: dict) -> bool:
@@ -32,10 +44,11 @@ def send_subagent_stop(input_data: dict) -> bool:
         # Read agent transcript and append to input_data
         agent_transcript_path = input_data.get('agent_transcript_path')
         if agent_transcript_path:
-            input_data['agent_transcript'] = read_transcript(agent_transcript_path)
+            input_data['agent_transcript'] = read_transcript_file(agent_transcript_path)
 
         payload = {
             "sessionId": input_data.get('session_id'),
+            "transcript": read_transcript(input_data),
             "data": input_data
         }
 
